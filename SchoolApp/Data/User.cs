@@ -14,6 +14,5 @@ namespace SchoolApp.Data
 
         public virtual Teacher? Teacher { get; set; }
         public virtual Student? Student { get; set; }
-
     }
 }
