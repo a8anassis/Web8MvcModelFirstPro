@@ -8,7 +8,7 @@ namespace SchoolApp.Data
         {
         }
 
-        public SchoolAppDbContext(DbContextOptions<SchoolAppDbContext> options)
+        public SchoolAppDbContext(DbContextOptions options)
             : base(options)
         {
         }
@@ -69,6 +69,59 @@ namespace SchoolApp.Data
                 //    .HasForeignKey<Student>(d => d.UserId)    // Convention over configuration with naming UserId
                 //    .HasConstraintName("FK_Students_Users");
             });
+
+            modelBuilder.Entity<Teacher>(entity =>
+            {
+                entity.ToTable("Teachers");
+
+                entity.HasKey(e => e.Id);   // Optional if 'Id' is the convention
+                entity.Property(e => e.Institution).HasMaxLength(255);
+                entity.Property(e => e.PhoneNumber).HasMaxLength(15);
+
+                entity.Property(e => e.InsertedAt)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("GETUTCDATE()");
+                
+                entity.Property(e => e.ModifiedAt)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("GETUTCDATE()");
+                
+                entity.HasIndex(e => e.UserId, "IX_Teachers_UserId").IsUnique();
+                entity.HasIndex(e => e.Institution, "IX_Teachers_Institution");
+                entity.HasIndex(e => e.PhoneNumber, "IX_Teachers_PhoneNumber");
+
+                //entity.HasOne(d => d.User)
+                //    .WithOne(p => p.Teacher)
+                //    .HasForeignKey<Teacher>(d => d.UserId)    // Convention over configuration with naming UserId
+                //    .HasConstraintName("FK_Teachers_Users");
+            });
+
+            modelBuilder.Entity<Course>(entity =>
+            {
+                entity.ToTable("Courses");
+
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).HasMaxLength(255);
+                entity.Property(e => e.Description).HasMaxLength(512);
+               
+                entity.Property(e => e.InsertedAt)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("GETUTCDATE()");
+               
+                entity.Property(e => e.ModifiedAt)
+                .ValueGeneratedOnAddOrUpdate()
+                .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasIndex(e => e.Title, "IX_Courses_Title").IsUnique();
+
+                //entity.HasOne(d => d.Teacher)
+                //    .WithMany(p => p.Courses)
+                //    .HasForeignKey(d => d.TeacherId)    // Convention over configuration with naming TeacherId
+                //    .HasConstraintName("FK_Courses_Teachers");
+
+                entity.HasMany(d => d.Students).WithMany(p => p.Courses)
+                    .UsingEntity("StudentsCourses");
+                }); 
 
         }
 
